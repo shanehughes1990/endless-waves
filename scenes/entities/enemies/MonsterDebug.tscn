@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://3nccr7v8py43"]
+
+[ext_resource type="PackedScene" uid="uid://cam8n7o6p5q4" path="res://scenes/entities/enemies/Monster.tscn" id="1_j9k8l"]
+[ext_resource type="Script" uid="uid://dgfxdo4jgggk2" path="res://scripts/entities/enemies/MonsterDebug.gd" id="2_m7n6o"]
+
+[node name="Monster-Debug" instance=ExtResource("1_j9k8l")]
+script = ExtResource("2_m7n6o")
+
+[node name="HealthComponent" parent="." index="1"]
+max_health = 75.0
+
+[node name="MovementComponent" parent="." index="2"]
+movement_speed = 100.0
+
+[node name="AttackComponent" parent="." index="3"]
+attack_speed = 2.0
+attack_damage = 20.0
+attack_type = 1

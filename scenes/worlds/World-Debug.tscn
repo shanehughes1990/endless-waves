@@ -1,3 +1,38 @@
-[gd_scene load_steps=1 format=3 uid="uid://b2wq3r4t5y6u"]
+[gd_scene load_steps=6 format=3 uid="uid://b2wq3r4t5y6u"]
+
+[ext_resource type="PackedScene" uid="uid://c5v6w7x80a00" path="res://scenes/entities/buildings/Base.tscn" id="1_m2n3o"]
+[ext_resource type="PackedScene" uid="uid://d3e4f5g6h7i8" path="res://scenes/ui/DebugMenu.tscn" id="2_p4q5r"]
+[ext_resource type="Script" uid="uid://dqyxg3qm8chk" path="res://scripts/worlds/World-Debug.gd" id="3_s6t7u"]
+[ext_resource type="Script" uid="uid://dxwwj8kmwqt0t" path="res://scripts/managers/WorldSceneManager.gd" id="5_wsm"]
+[ext_resource type="Script" uid="uid://q1nnwpc4jr4q" path="res://scripts/systems/SpawningSystem.gd" id="6_spawn"]
 
 [node name="World-Debug" type="Node2D"]
+script = ExtResource("3_s6t7u")
+
+[node name="WorldSceneManager" type="Node" parent="."]
+script = ExtResource("5_wsm")
+
+[node name="SpawningSystem" type="Node" parent="."]
+script = ExtResource("6_spawn")
+wave_delay = 5.0
+
+[node name="GameLayer" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Base" parent="GameLayer" instance=ExtResource("1_m2n3o")]
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="DebugMenu" type="CanvasLayer" parent="UILayer"]
+layer = 15
+
+[node name="DebugMenuControl" parent="UILayer/DebugMenu" instance=ExtResource("2_p4q5r")]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 400.0
+offset_bottom = 450.0
+grow_vertical = 0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.8, 0.8)

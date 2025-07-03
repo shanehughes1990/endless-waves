@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://cam8n7o6p5q4"]
+
+[ext_resource type="Script" uid="uid://dig32nhrgqsh1" path="res://scripts/entities/enemies/Monster.gd" id="1_r3s2t"]
+[ext_resource type="Script" uid="uid://brcx4p1cifty0" path="res://components/combat/HealthComponent.gd" id="2_u1v0w"]
+[ext_resource type="Script" uid="uid://bohj2f3nyuw6n" path="res://components/movement/MovementComponent.gd" id="3_x9y8z"]
+[ext_resource type="Script" uid="uid://b4j0ljy5a8a2k" path="res://components/combat/AttackComponent.gd" id="4_a7b6c"]
+[ext_resource type="Texture2D" uid="uid://cgkbnlfb3rvfl" path="res://icon.svg" id="5_icon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 30.0
+
+[node name="Monster" type="CharacterBody2D"]
+script = ExtResource("1_r3s2t")
+collision_layer = 2
+collision_mask = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("5_icon")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_u1v0w")
+max_health = 50.0
+
+[node name="MovementComponent" type="Node" parent="."]
+script = ExtResource("3_x9y8z")
+movement_speed = 75.0
+
+[node name="AttackComponent" type="Node" parent="."]
+script = ExtResource("4_a7b6c")
+attack_speed = 1.5
+attack_damage = 15.0

@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3e4f5g6h7i8"]
+
+[ext_resource type="Script" path="res://scripts/ui/DebugMenu.gd" id="1_j9k0l"]
+
+[node name="DebugMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 410.0
+offset_bottom = 310.0
+script = ExtResource("1_j9k0l")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="BaseStatsLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "=== BASE STATS ===
+Loading..."
+theme_override_font_sizes/font_size = 12
+vertical_alignment = 0
+autowrap_mode = 3
+
+[node name="MonsterStatsLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "=== MONSTERS ===
+Count: 0"
+theme_override_font_sizes/font_size = 12
+vertical_alignment = 0
+autowrap_mode = 3
