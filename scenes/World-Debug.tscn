@@ -1,0 +1,3 @@
+[gd_scene load_steps=1 format=3 uid="uid://b2wq3r4t5y6u"]
+
+[node name="World-Debug" type="Node2D"]
