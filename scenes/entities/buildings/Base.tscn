@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://c5v6w7x80a00"]
+[gd_scene load_steps=7 format=3 uid="uid://c5v6w7x80a00"]
 
 [ext_resource type="Script" path="res://scripts/entities/buildings/Base.gd" id="1_1a2b3"]
 [ext_resource type="Script" path="res://components/combat/HealthComponent.gd" id="2_4c5d6"]
@@ -6,6 +6,9 @@
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 40.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2"]
+radius = 300.0
 
 [node name="Base" type="StaticBody2D"]
 script = ExtResource("1_1a2b3")
@@ -23,3 +26,19 @@ max_health = 150.0
 
 [node name="UpgradesComponent" type="Node" parent="."]
 script = ExtResource("3_7e8f9")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="TargetingArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TargetingArea"]
+shape = SubResource("CircleShape2D_2")
+
+[node name="MuzzlePoint" type="Marker2D" parent="."]
+position = Vector2(50, 0)

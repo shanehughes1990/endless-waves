@@ -12,6 +12,9 @@ var target_position: Vector2 = Vector2.ZERO
 var move_toward_target: bool = true
 
 func _ready() -> void:
+	# Add to enemies group for targeting
+	add_to_group("enemies")
+	
 	# Load the Godot icon if not already set
 	if sprite and not sprite.texture:
 		sprite.texture = load("res://icon.svg")
@@ -95,6 +98,14 @@ func _on_death() -> void:
 
 func _on_attack_performed(target: Node, damage: float) -> void:
 	print("Monster attacked ", target.name, " for ", damage, " damage")
+
+# Public interface for taking damage
+func take_damage(amount: float) -> void:
+	if health_component:
+		health_component.take_damage(amount)
+		print("Monster %s took %.0f damage (%.0f/%.0f HP)" % [name, amount, health_component.current_health, health_component.max_health])
+	else:
+		print("Monster %s took %.0f damage but has no health component!" % [name, amount])
 
 func get_debug_info() -> Dictionary:
 	var info = {
