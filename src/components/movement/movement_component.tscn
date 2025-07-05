@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/components/movement/movement_component.gd" id="1"]
+[ext_resource type="PackedScene" path="res://src/components/movement/states/move_to_target_state.tscn" id="2"]
+
+[node name="MovementComponent" type="Node"]
+script = ExtResource("1")
+
+[node name="MoveToTargetState" parent="." instance=ExtResource("2")]
