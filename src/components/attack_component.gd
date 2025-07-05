@@ -42,10 +42,6 @@ func _ready() -> void:
 	fire_timer.autostart = true
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	add_child(fire_timer)
-	
-	# Apply any existing upgrades from WorldManager (in case we're created after upgrades applied)
-	if WorldManager and WorldManager.has_method("apply_upgrades_to_component"):
-		WorldManager.apply_upgrades_to_component(self)
 
 ## Recalculate all effective stats based on base values + bonuses
 func _recalculate_stats() -> void:

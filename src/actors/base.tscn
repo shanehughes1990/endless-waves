@@ -1,17 +1,16 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Texture2D" path="res://icon.svg" id="1_7bhu4"]
+[ext_resource type="Script" path="res://src/actors/base.gd" id="2"]
+[ext_resource type="PackedScene" path="res://src/components/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://src/components/attack_component.tscn" id="4"]
 
-[node name="root" type="Node2D"]
-
-[node name="root" type="Node2D" parent="."]
-script = "res://src/actors/base.gd"
+[node name="Base" type="Node2D"]
+script = ExtResource("2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_7bhu4")
 
-[node name="HealthComponent" type="Node" parent="."]
-script = "res://src/components/health_component.gd"
+[node name="HealthComponent" parent="." instance=ExtResource("3")]
 
-[node name="AttackComponent" type="Node" parent="."]
-script = "res://src/components/attack_component.gd"
+[node name="AttackComponent" parent="." instance=ExtResource("4")]

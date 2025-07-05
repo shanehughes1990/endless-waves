@@ -17,18 +17,6 @@ func _ready() -> void:
 	if attack_component:
 		attack_component.fired.connect(_on_attack_component_fired)
 
-	# Connect to WorldManager signals for upgrade changes
-	if WorldManager.has_signal("upgrade_applied"):
-		WorldManager.upgrade_applied.connect(_on_upgrade_applied)
-
-## Called when WorldManager applies an upgrade
-func _on_upgrade_applied() -> void:
-	print_debug("Base: Recalculating stats due to upgrade")
-	if health_component:
-		health_component.recalculate_stats()
-	if attack_component:
-		attack_component.recalculate_stats()
-
 func _on_health_component_died() -> void:
 	print_debug("Base destroyed!")
 	# TODO: Implement game over logic

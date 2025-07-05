@@ -25,10 +25,6 @@ func _ready() -> void:
 	# Calculate effective max health with bonuses
 	_recalculate_stats()
 	current_health = effective_max_health
-	
-	# Apply any existing upgrades from WorldManager (in case we're created after upgrades applied)
-	if WorldManager and WorldManager.has_method("apply_upgrades_to_component"):
-		WorldManager.apply_upgrades_to_component(self)
 
 ## Recalculate stats based on base values + bonuses
 func _recalculate_stats() -> void:
