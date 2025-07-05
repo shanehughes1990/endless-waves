@@ -6,6 +6,3 @@
 
 [node name="Base" parent="." instance=ExtResource("1_f8nmu")]
 position = Vector2(960, 540)
-
-[node name="World1" type="Node2D" parent="."]
-script = "res://src/world/world_1.gd"
