@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3 uid="uid://d2355s62nik86"]
+
+[ext_resource type="PackedScene" path="res://src/actors/npc/base_npc.tscn" id="1"]
+[ext_resource type="Script" uid="uid://6hs8rq8f11lg" path="res://src/actors/npc/enemies/debug_enemy.gd" id="2"]
+[ext_resource type="PackedScene" path="res://src/components/movement/states/move_to_target_state.tscn" id="3"]
+
+[node name="DebugEnemy" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="MoveToTargetState" parent="MovementComponent" index="0" instance=ExtResource("3")]
