@@ -1,0 +1,35 @@
+{
+	"servers": {
+		"godot-server": {
+			"command": "node",
+			"args": [
+				"/Users/shanehughes/workspace/repos/public/godot-mcp/build/index.js"
+			],
+		},
+		"filesystem": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-filesystem",
+				"/Users/shanehughes/workspace/godot/endless-waves"
+			]
+		},
+		"sequential-thinking": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-sequential-thinking"
+			]
+		},
+		"memory": {
+			"command": "npx",
+			"env": {
+				"MEMORY_FILE_PATH": "/Users/shanehughes/workspace/godot/endless-waves/.vscode/memory.jsonl"
+			},
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-memory"
+			]
+		}
+	},
+}

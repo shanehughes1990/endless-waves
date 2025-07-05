@@ -1,10 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://c4clvpel6jrqs"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://src/components/health_component.gd" id="1_t2y56"]
-[ext_resource type="Texture2D" uid="uid://dvyy3l66psdn2" path="res://icon.svg" id="2_q3wfg"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="1_7bhu4"]
 
-[node name="Base" type="Node2D"]
-script = ExtResource("1_t2y56")
+[node name="root" type="Node2D"]
+
+[node name="root" type="Node2D" parent="."]
+script = "res://src/actors/base.gd"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_q3wfg")
+texture = ExtResource("1_7bhu4")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = "res://src/components/health_component.gd"
+
+[node name="AttackComponent" type="Node" parent="."]
+script = "res://src/components/attack_component.gd"
