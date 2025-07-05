@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4clvpel6jrqs"]
+
+[ext_resource type="Script" path="res://src/components/health_component.gd" id="1_t2y56"]
+[ext_resource type="Texture2D" uid="uid://dvyy3l66psdn2" path="res://icon.svg" id="2_q3wfg"]
+
+[node name="Base" type="Node2D"]
+script = ExtResource("1_t2y56")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_q3wfg")

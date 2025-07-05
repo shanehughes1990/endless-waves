@@ -11,8 +11,14 @@ config_version=5
 [application]
 
 config/name="Endless Waves"
+run/main_scene="res://src/world/world_1.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
 
 [rendering]
 
