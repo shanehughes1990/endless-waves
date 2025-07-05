@@ -13,3 +13,10 @@ func _ready() -> void:
 	
 	# Example: Give player some starting coins for this world
 	WorldManager.add_coins(50)
+	
+	# Example: Add some test upgrades to see the system working
+	await get_tree().create_timer(2.0).timeout  # Wait 2 seconds
+	print_debug("Applying test upgrades...")
+	WorldManager.add_session_upgrade("damage", 5)
+	WorldManager.add_session_upgrade("health", 25)
+	WorldManager.add_session_upgrade("fire_rate", 2)

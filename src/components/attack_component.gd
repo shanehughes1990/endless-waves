@@ -10,7 +10,7 @@ signal fired(projectile)
 @export var projectile_scene: PackedScene
 
 # The time in seconds between each shot.
-@export var fire_rate: float = 1.0
+@export var base_fire_rate: float = 1.0
 
 # The distance the component can detect targets.
 @export var attack_range: float = 300.0
@@ -19,15 +19,27 @@ signal fired(projectile)
 @export var projectile_count: int = 1
 
 var fire_timer: Timer
+var effective_fire_rate: float
 
 func _ready() -> void:
+	# Calculate effective fire rate with WorldManager bonuses
+	recalculate_stats()
+	
 	# Set up the timer for firing.
 	fire_timer = Timer.new()
-	fire_timer.wait_time = fire_rate
+	fire_timer.wait_time = effective_fire_rate
 	fire_timer.one_shot = false # The timer will restart automatically.
 	fire_timer.autostart = true
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	add_child(fire_timer)
+
+## Recalculate stats based on WorldManager bonuses
+func recalculate_stats() -> void:
+	var fire_rate_bonus = WorldManager.get_fire_rate_bonus()
+	effective_fire_rate = max(0.1, base_fire_rate - fire_rate_bonus)  # Lower is faster, minimum 0.1s
+	if fire_timer:
+		fire_timer.wait_time = effective_fire_rate
+	print_debug("AttackComponent: Effective fire rate: ", effective_fire_rate)
 
 func _on_fire_timer_timeout() -> void:
 	# This function is called every time the fire_timer finishes.
@@ -81,6 +93,9 @@ func _fire(target: Node2D) -> void:
 
 # This allows the fire_rate to be updated by other scripts (e.g., upgrades).
 func set_fire_rate(new_rate: float) -> void:
-	fire_rate = max(0.01, new_rate) # Prevent division by zero or negative rates.
-	if fire_timer:
-		fire_timer.wait_time = fire_rate
+	base_fire_rate = max(0.01, new_rate) # Prevent division by zero or negative rates.
+	recalculate_stats()  # Recalculate with current bonuses
+
+## Get the current effective fire rate
+func get_effective_fire_rate() -> float:
+	return effective_fire_rate
