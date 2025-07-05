@@ -9,7 +9,6 @@ extends Node
 signal coins_changed(current_coins: int)
 signal world_loaded(world_scene: PackedScene)
 signal world_unloaded()
-signal upgrade_applied()
 
 # World state
 var current_coins: int = 0
@@ -39,20 +38,6 @@ func _ready() -> void:
 	coin_timer.autostart = true
 	coin_timer.timeout.connect(_on_coin_timer_timeout)
 	add_child(coin_timer)
-
-	# Test upgrades after a delay
-	var test_timer = Timer.new()
-	test_timer.wait_time = 3.0
-	test_timer.one_shot = true
-	test_timer.timeout.connect(_apply_test_upgrades)
-	add_child(test_timer)
-	test_timer.start()
-
-func _apply_test_upgrades() -> void:
-	print_debug("WorldManager: Applying test upgrades...")
-	add_session_upgrade("damage", 5)
-	add_session_upgrade("health", 25)
-	add_session_upgrade("fire_rate", 2)
 
 func _process(_delta: float) -> void:
 	# Draw debug menu
@@ -85,8 +70,44 @@ func _draw_debug_menu() -> void:
 	ImGui.Separator()
 	ImGui.Text("=== Session Upgrades ===")
 	ImGui.Text("Damage Bonus: +" + str(session_damage_bonus))
+	ImGui.SameLine()
+	if ImGui.Button("-##damage"):
+		if session_damage_bonus > 0:
+			add_session_upgrade("damage", -1)
+	ImGui.SameLine()
+	if ImGui.Button("+1##damage"):
+		add_session_upgrade("damage", 1)
+	ImGui.SameLine()
+	if ImGui.Button("+5##damage"):
+		add_session_upgrade("damage", 5)
+
 	ImGui.Text("Health Bonus: +" + str(session_health_bonus))
+	ImGui.SameLine()
+	if ImGui.Button("-##health"):
+		if session_health_bonus > 0:
+			add_session_upgrade("health", -1)
+	ImGui.SameLine()
+	if ImGui.Button("+1##health"):
+		add_session_upgrade("health", 1)
+	ImGui.SameLine()
+	if ImGui.Button("+10##health"):
+		add_session_upgrade("health", 10)
+
 	ImGui.Text("Fire Rate Bonus: +" + str("%.1f" % session_fire_rate_bonus))
+	ImGui.SameLine()
+	if ImGui.Button("-##fire_rate"):
+		if session_fire_rate_bonus > 0:
+			add_session_upgrade("fire_rate", -1)
+	ImGui.SameLine()
+	if ImGui.Button("+0.5##fire_rate"):
+		add_session_upgrade("fire_rate", 1)  # Internally stored as 1 but means 0.5s faster
+	ImGui.SameLine()
+	if ImGui.Button("+1.0##fire_rate"):
+		add_session_upgrade("fire_rate", 2)  # 1.0s faster
+
+	ImGui.Separator()
+	if ImGui.Button("Reset All Upgrades"):
+		reset_session()
 
 	ImGui.End()
 
@@ -111,35 +132,59 @@ func spend_coins(amount: int) -> bool:
 func get_coins() -> int:
 	return current_coins
 
-## Get damage bonus for components
-func get_damage_bonus() -> int:
-	return session_damage_bonus
-
-## Get health bonus for components
-func get_health_bonus() -> int:
-	return session_health_bonus
-
-## Get fire rate bonus for components
-func get_fire_rate_bonus() -> float:
-	return session_fire_rate_bonus
-
 ## Add session upgrade (temporary boost)
 func add_session_upgrade(upgrade_type: String, amount: int) -> void:
 	match upgrade_type:
 		"damage":
-			session_damage_bonus += amount
-			print_debug("Session damage upgraded: +", amount, " (Total: +", session_damage_bonus, ")")
+			session_damage_bonus = max(0, session_damage_bonus + amount)  # Prevent negative
+			print_debug("Session damage upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_damage_bonus, ")")
 		"health":
-			session_health_bonus += amount
-			print_debug("Session health upgraded: +", amount, " (Total: +", session_health_bonus, ")")
+			session_health_bonus = max(0, session_health_bonus + amount)  # Prevent negative
+			print_debug("Session health upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_health_bonus, ")")
 		"fire_rate":
-			session_fire_rate_bonus += float(amount)
-			print_debug("Session fire rate upgraded: +", amount, " (Total: +", session_fire_rate_bonus, ")")
+			session_fire_rate_bonus = max(0.0, session_fire_rate_bonus + float(amount))  # Prevent negative
+			print_debug("Session fire rate upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_fire_rate_bonus, ")")
 		_:
 			print_debug("Unknown upgrade type: ", upgrade_type)
+	# Apply upgrades to all relevant components in the scene
+	_apply_upgrades_to_components()
 
-	# Notify components to recalculate stats
-	upgrade_applied.emit()
+## Apply current upgrades to all components in the scene
+func _apply_upgrades_to_components() -> void:
+	# Find all HealthComponents and apply health bonus
+	var health_components = get_tree().get_nodes_in_group("health_components")
+	for component in health_components:
+		if component.has_method("apply_health_bonus"):
+			component.apply_health_bonus(session_health_bonus)
+
+	# Find all AttackComponents and apply bonuses
+	var attack_components = get_tree().get_nodes_in_group("attack_components")
+	for component in attack_components:
+		if component.has_method("apply_fire_rate_bonus"):
+			component.apply_fire_rate_bonus(session_fire_rate_bonus)
+		# Note: damage bonus would be applied to a DamageComponent if it existed
+
+## Reset all components to their base values (no bonuses)
+func _reset_components_to_base() -> void:
+	# Reset all HealthComponents
+	var health_components = get_tree().get_nodes_in_group("health_components")
+	for component in health_components:
+		if component.has_method("reset_bonuses"):
+			component.reset_bonuses()
+
+	# Reset all AttackComponents
+	var attack_components = get_tree().get_nodes_in_group("attack_components")
+	for component in attack_components:
+		if component.has_method("reset_bonuses"):
+			component.reset_bonuses()
+
+## Apply current session upgrades to a specific component (called when component joins scene)
+func apply_upgrades_to_component(component: Node) -> void:
+	if component.is_in_group("health_components") and component.has_method("apply_health_bonus"):
+		component.apply_health_bonus(session_health_bonus)
+
+	if component.is_in_group("attack_components") and component.has_method("apply_fire_rate_bonus"):
+		component.apply_fire_rate_bonus(session_fire_rate_bonus)
 
 ## Reset session upgrades (called when returning to menu or starting new session)
 func reset_session() -> void:
@@ -148,6 +193,9 @@ func reset_session() -> void:
 	session_fire_rate_bonus = 0.0
 	current_coins = starting_coins
 	print_debug("Session reset - all upgrades cleared")
+
+	# Reset all components to base values
+	_reset_components_to_base()
 
 ## Upgrade the coin generation rate
 func upgrade_coins_per_second(increase_amount: float) -> void:
