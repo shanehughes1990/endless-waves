@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvv8n4xhxgjhv"]
+
+[ext_resource type="Script" uid="uid://cskxxwedgdxkd" path="res://src/systems/spawn_manager/spawn_manager.gd" id="1_8k9mf"]
+
+[node name="SpawnManager" type="Node2D"]
+script = ExtResource("1_8k9mf")
+auto_start_waves = null
+wave_delay = null
+milestone_interval = null
+base_enemy_count = null
+enemy_count_increase = null
+base_wave_duration = null
+spawn_interval = null
+boss_enemy_count = null
+boss_minion_count = null
+boss_wave_duration = null
+enable_clusters = null
+cluster_size = null
+cluster_radius = null
+clusters_per_wave = null
+debug_enemy_scene = null

@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3 uid="uid://b8q7c3f2yak1m"]
+
+[ext_resource type="Script" uid="uid://cquwv8x00nnyf" path="res://src/actors/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="PackedScene" uid="uid://b2m2m2ootsvq4" path="res://src/components/movement/movement_component.tscn" id="2_movement"]
+[ext_resource type="PackedScene" path="res://src/components/health_component.tscn" id="3_health"]
+[ext_resource type="PackedScene" path="res://src/components/attack_component.tscn" id="4_attack"]
+[ext_resource type="PackedScene" path="res://src/components/movement/states/idle_state.tscn" id="5_idle"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 32.0
+
+[node name="Enemy" type="Node2D"]
+script = ExtResource("1_enemy")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="MovementComponent" parent="." instance=ExtResource("2_movement")]
+
+[node name="IdleState" parent="MovementComponent" instance=ExtResource("5_idle")]
+
+[node name="HealthComponent" parent="." instance=ExtResource("3_health")]
+
+[node name="AttackComponent" parent="." instance=ExtResource("4_attack")]
+
+[node name="CollisionArea" type="Area2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
+shape = SubResource("CircleShape2D_1")

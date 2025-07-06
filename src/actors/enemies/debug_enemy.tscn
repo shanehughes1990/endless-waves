@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=3 uid="uid://dax2m4p5k8j3n"]
+
+[ext_resource type="PackedScene" uid="uid://b8q7c3f2yak1m" path="res://src/actors/enemies/enemy.tscn" id="1_enemy"]
+[ext_resource type="Script" uid="uid://op0l2td8a26r" path="res://src/actors/enemies/debug_enemy.gd" id="2_debug"]
+[ext_resource type="PackedScene" path="res://src/components/movement/states/move_to_target_state.tscn" id="3_move_state"]
+[ext_resource type="Texture2D" uid="uid://ci23iywsh8nhy" path="res://icon.svg" id="4_icon"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ek08"]
+radius = 13.0
+height = 26.0
+
+[node name="DebugEnemy" instance=ExtResource("1_enemy")]
+script = ExtResource("2_debug")
+
+[node name="Sprite2D" parent="." index="0"]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("4_icon")
+
+[node name="MoveToTargetState" parent="MovementComponent" index="0" instance=ExtResource("3_move_state")]
+
+[node name="CollisionShape2D" parent="CollisionArea" index="0"]
+shape = SubResource("CapsuleShape2D_0ek08")
