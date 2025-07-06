@@ -37,9 +37,7 @@ var current_coin_multiplier: float = 1.0
 # Coin generation timer
 var coin_timer: Timer
 
-# Spawn manager
-var spawn_manager: SpawnManager
-const SPAWN_MANAGER_SCENE = preload("res://src/systems/spawn_manager/spawn_manager.tscn")
+# Note: spawn_manager moved to individual World instances for better encapsulation
 
 func _ready() -> void:
 	# Initialize with starting values
@@ -53,9 +51,6 @@ func _ready() -> void:
 	coin_timer.timeout.connect(_on_coin_timer_timeout)
 	add_child(coin_timer)
 
-	# Initialize spawn manager
-	_initialize_spawn_manager()
-
 func _process(_delta: float) -> void:
 	# Draw debug menu
 	_draw_debug_menu()
@@ -63,7 +58,7 @@ func _process(_delta: float) -> void:
 func _on_coin_timer_timeout() -> void:
 	# Generate coins when timer times out
 	var effective_rate = coins_per_second * coin_increment_multiplier * current_coin_multiplier
-	var coins_to_add = int(effective_rate)
+	var coins_to_add = int(effective_rate)  # Convert to integer
 	if coins_to_add > 0:
 		add_coins(coins_to_add)
 
@@ -75,11 +70,24 @@ func _draw_debug_menu() -> void:
 		var config = current_world.get_world_config()
 		ImGui.Text("Current World: " + config.name)
 		ImGui.Text("World ID: " + config.id)
+		ImGui.Text("Description: " + config.description)
 		ImGui.Text("World Type: " + str(current_world.get_class()))
 		ImGui.Text("Active: " + str(current_world.is_active))
 		ImGui.Text("Runtime: " + str("%.1f" % current_world.get_world_runtime()) + "s")
 		ImGui.Text("Difficulty: x" + str(config.difficulty_multiplier))
 		ImGui.Text("Coin Rate: x" + str(config.coin_multiplier))
+		
+		# Show theme info
+		var theme = config.visual_theme
+		ImGui.Text("Theme Color: " + str(config.theme_color))
+		ImGui.Text("Lighting: " + str(theme.get("lighting_intensity", 1.0)))
+		ImGui.Text("Saturation: " + str(theme.get("saturation", 1.0)))
+		
+		# Show base stats
+		var stats = config.base_stats
+		ImGui.Text("Base Health: " + str(stats.get("base_health", 100)))
+		ImGui.Text("Base Damage: " + str(stats.get("base_damage", 10)))
+		ImGui.Text("Base Speed: " + str(stats.get("base_movement_speed", 50)))
 	else:
 		ImGui.Text("Current World: None")
 	ImGui.Separator()
@@ -96,6 +104,9 @@ func _draw_debug_menu() -> void:
 
 	ImGui.Separator()
 	ImGui.Text("=== Spawn Manager ===")
+	var spawn_manager = null
+	if current_world:
+		spawn_manager = current_world.get_spawn_manager()
 	if spawn_manager:
 		ImGui.Text("Status: Active")
 		ImGui.Text("Position: " + str(spawn_manager.global_position))
@@ -435,17 +446,6 @@ func upgrade_coin_multiplier(multiplier_increase: float) -> void:
 ## Get current coin generation stats
 func get_coin_generation_rate() -> float:
 	return coins_per_second * coin_increment_multiplier * current_coin_multiplier
-
-## Initialize the spawn manager
-func _initialize_spawn_manager() -> void:
-	spawn_manager = SPAWN_MANAGER_SCENE.instantiate()
-	# Position at center of screen (assuming 1920x1080 from project.godot)
-	spawn_manager.global_position = Vector2(960, 540)
-	# Configure spawn manager with larger radius and debug enemy scene
-	spawn_manager.spawn_radius = 300.0
-	spawn_manager.debug_enemy_scene = preload("res://src/actors/enemies/debug_enemy.tscn")
-	get_tree().current_scene.add_child(spawn_manager)
-	print_debug("SpawnManager initialized and positioned at screen center")
 
 # ===== DEPRECATED METHODS (kept for compatibility) =====
 

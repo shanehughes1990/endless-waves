@@ -21,8 +21,8 @@ func _on_health_component_died() -> void:
 	print_debug("Base destroyed!")
 	# TODO: Implement game over logic
 
-func _on_health_changed(current_health: int) -> void:
-	print_debug("Base health: ", current_health)
+func _on_health_changed(_current_health: int) -> void:
+	print_debug("Base health: ", _current_health)
 	# TODO: Update UI health display
 
 func _on_attack_component_fired(_projectile: Node) -> void:

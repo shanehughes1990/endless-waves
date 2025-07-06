@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://cdkh1kjvytvfw"]
+
+[ext_resource type="PackedScene" uid="uid://govqgtwddh72" path="res://src/actors/base.tscn" id="1_f8nmu"]
+[ext_resource type="Script" uid="uid://drj8s4644o41n" path="res://src/world/world_1/world_1.gd" id="2_world1"]
+
+[node name="World1" type="Node2D"]
+script = ExtResource("2_world1")
+world_name = "Emerald Gardens"
+world_id = "world_1"
+world_description = "A peaceful starting area with lush green landscapes and gentle enemies. Perfect for new adventurers."
+world_theme_color = Color(0.2, 0.8, 0.3, 1)
+
+[node name="Base" parent="." instance=ExtResource("1_f8nmu")]
+position = Vector2(960, 540)
