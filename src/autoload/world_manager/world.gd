@@ -42,7 +42,7 @@ var spawn_manager: SpawnManager
 const SPAWN_MANAGER_SCENE = preload("res://src/systems/spawn_manager/spawn_manager.tscn")
 
 func _ready() -> void:
-	print_debug("World: ", world_name, " (", world_id, ") ready")
+	Loggie.debug("World: ", world_name, " (", world_id, ") ready")
 	# Call initialize after a frame to ensure all children are ready
 	call_deferred("initialize")
 
@@ -52,7 +52,7 @@ func initialize() -> void:
 	if is_initialized:
 		return
 	
-	print_debug("World: Initializing ", world_name)
+	Loggie.info("World: Initializing ", world_name)
 	
 	# Perform base initialization
 	_setup_world()
@@ -66,7 +66,7 @@ func initialize() -> void:
 	
 	is_initialized = true
 	world_initialized.emit()
-	print_debug("World: ", world_name, " initialized successfully")
+	Loggie.info("World: ", world_name, " initialized successfully")
 
 ## Start the world gameplay - called by WorldManager
 func start_world() -> void:
@@ -75,10 +75,10 @@ func start_world() -> void:
 		return
 	
 	if is_active:
-		print_debug("World: ", world_name, " is already active")
+		Loggie.debug("World: ", world_name, " is already active")
 		return
 	
-	print_debug("World: Starting ", world_name)
+	Loggie.info("World: Starting ", world_name)
 	start_time = Time.get_ticks_msec() / 1000.0
 	is_active = true
 	
@@ -92,7 +92,7 @@ func stop_world() -> void:
 	if not is_active:
 		return
 	
-	print_debug("World: Stopping ", world_name)
+	Loggie.info("World: Stopping ", world_name)
 	is_active = false
 	
 	# Stop and cleanup spawn manager
@@ -107,7 +107,7 @@ func complete_world() -> void:
 	if not is_active:
 		return
 	
-	print_debug("World: ", world_name, " completed successfully")
+	Loggie.info("World: ", world_name, " completed successfully")
 	stop_world()
 	world_completed.emit()
 
@@ -116,7 +116,7 @@ func fail_world() -> void:
 	if not is_active:
 		return
 	
-	print_debug("World: ", world_name, " failed")
+	Loggie.warn("World: ", world_name, " failed")
 	stop_world()
 	world_failed.emit()
 
@@ -212,7 +212,7 @@ func _initialize_spawn_manager() -> void:
 	# Call world-specific configuration
 	_configure_spawn_manager()
 	
-	print_debug("World: Spawn manager configured with exported properties")
+	Loggie.debug("World: Spawn manager configured with exported properties")
 
 ## Validate that the world has required components
 func _validate_world_structure() -> void:
@@ -226,7 +226,7 @@ func _validate_world_structure() -> void:
 
 ## Apply world visual theme
 func _apply_world_theme() -> void:
-	print_debug("World: Applying visual theme for ", world_name, " with color ", world_theme_color)
+	Loggie.debug("World: Applying visual theme for ", world_name, " with color ", world_theme_color)
 	
 	# TODO: Apply lighting, fog, and other visual effects
 	# This could be expanded to modify CanvasLayer, Environment, etc.

@@ -10,7 +10,7 @@ func _ready() -> void:
 
 ## Override: World-specific initialization
 func _on_world_initialize() -> void:
-	print_debug(world_name+": Performing world-specific initialization")
+	Loggie.info(world_name+": Performing world-specific initialization")
 	
 	# Give additional coins for this peaceful world
 	if WorldManager:
@@ -21,11 +21,11 @@ func _on_world_initialize() -> void:
 
 ## Override: World-specific start logic
 func _on_world_start() -> void:
-	print_debug(world_name+": World started - beginning peaceful gameplay")
+	Loggie.info(world_name+": World started - beginning peaceful gameplay")
 	
 	# Apply world-specific upgrades after starting
 	await get_tree().create_timer(2.0).timeout
-	print_debug(world_name+": Applying nature's blessing...")
+	Loggie.info(world_name+": Applying nature's blessing...")
 	if WorldManager:
 		WorldManager.add_session_upgrade("damage", 5)
 		WorldManager.add_session_upgrade("health", 25)
@@ -33,7 +33,7 @@ func _on_world_start() -> void:
 
 ## Override: World-specific stop logic
 func _on_world_stop() -> void:
-	print_debug(world_name+": Leaving the peaceful gardens")
+	Loggie.info(world_name+": Leaving the peaceful gardens")
 	
 	# Call parent stop logic
 	super._on_world_stop()

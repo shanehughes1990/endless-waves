@@ -80,7 +80,7 @@ func _ready() -> void:
 	# Emit spawned signal
 	enemy_spawned.emit(self)
 	
-	print_debug("Enemy spawned: ", _get_enemy_description())
+	Loggie.msg("Enemy spawned: %s" % _get_enemy_description()).domain("Enemy").debug()
 
 ## Validate that all required components exist
 func _validate_components() -> void:
@@ -105,7 +105,7 @@ func _apply_stat_multipliers() -> void:
 	if health_component and multiplier > 1.0:
 		var bonus_health = int(health_component.base_max_health * (multiplier - 1.0))
 		health_component.apply_health_bonus(bonus_health)
-		print_debug("Enemy: Applied ", multiplier, "x multiplier (+", bonus_health, " health)")
+		Loggie.msg("Enemy: Applied %sx multiplier (+%s health)" % [multiplier, bonus_health]).domain("Enemy").debug()
 
 ## Connect to component signals
 func _connect_component_signals() -> void:
@@ -145,13 +145,13 @@ func _setup_ground_movement() -> void:
 		var base_position = base_node.global_position
 		if movement_component:
 			movement_component.move_to_target(base_position)
-			print_debug("Enemy moving to base at: ", base_position)
+			Loggie.msg("Enemy moving to base at: %s" % base_position).domain("Enemy").debug()
 	else:
 		# Fallback to screen center if no base found
 		var screen_center = Vector2(960, 540)
 		if movement_component:
 			movement_component.move_to_target(screen_center)
-			print_debug("Enemy moving to fallback position: ", screen_center)
+			Loggie.msg("Enemy moving to fallback position: %s" % screen_center).domain("Enemy").debug()
 
 ## Setup air enemy movement (direct line to base)
 func _setup_air_movement() -> void:
@@ -161,17 +161,17 @@ func _setup_air_movement() -> void:
 		var base_position = base_node.global_position
 		if movement_component:
 			movement_component.move_to_target(base_position)
-			print_debug("Air enemy moving to base at: ", base_position)
+			Loggie.msg("Air enemy moving to base at: %s" % base_position).domain("Enemy").debug()
 	else:
 		# Fallback to screen center if no base found
 		var screen_center = Vector2(960, 540)
 		if movement_component:
 			movement_component.move_to_target(screen_center)
-			print_debug("Air enemy moving to fallback position: ", screen_center)
+			Loggie.msg("Air enemy moving to fallback position: %s" % screen_center).domain("Enemy").debug()
 
 ## Called when health component reports death
 func _on_health_component_died() -> void:
-	print_debug("Enemy died: ", _get_enemy_description())
+	Loggie.msg("Enemy died: %s" % _get_enemy_description()).domain("Enemy").info()
 	
 	# Calculate and award coins
 	_award_coins()
@@ -197,7 +197,7 @@ func _on_health_changed(current_health: int) -> void:
 
 ## Called when attack component fires
 func _on_attack_component_fired(_projectile: Node) -> void:
-	print_debug("Enemy fired: ", _get_enemy_description())
+	Loggie.msg("Enemy fired: %s" % _get_enemy_description()).domain("Enemy").debug()
 	# TODO: Add firing effects, sounds, etc.
 
 ## Called when movement state changes

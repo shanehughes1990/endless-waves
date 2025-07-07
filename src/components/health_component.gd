@@ -20,7 +20,7 @@ func _ready() -> void:
 	# Validate base_max_health to prevent negative values
 	if base_max_health <= 0:
 		base_max_health = 1
-		print_debug("HealthComponent: base_max_health was <= 0, set to 1")
+		Loggie.msg("HealthComponent: base_max_health was <= 0, set to 1").domain("HealthComp").warn()
 	
 	# Calculate effective max health with bonuses
 	_recalculate_stats()
@@ -41,8 +41,7 @@ func _recalculate_stats() -> void:
 		current_health = effective_max_health
 	
 	health_changed.emit(current_health)
-	print_debug("HealthComponent stats - Max Health: ", effective_max_health, 
-		", Current Health: ", current_health)
+	Loggie.msg("HealthComponent stats - Max Health: %s, Current Health: %s" % [effective_max_health, current_health]).domain("HealthComp").debug()
 
 ## Get the current effective max health
 func get_max_health() -> int:

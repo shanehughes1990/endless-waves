@@ -42,7 +42,7 @@ var coin_timer: Timer
 func _ready() -> void:
 	# Initialize with starting values
 	current_coins = starting_coins
-	print_debug("WorldManager initialized with ", starting_coins, " coins")
+	Loggie.msg("WorldManager initialized with %s coins" % starting_coins).domain("WorldMgr").debug()
 
 	# Create and configure coin generation timer
 	coin_timer = Timer.new()
@@ -240,7 +240,7 @@ func load_world(world_scene_path: String) -> bool:
 	_connect_world_signals()
 	
 	world_loaded.emit(current_world)
-	print_debug("WorldManager: World loaded successfully: ", current_world.world_name)
+	Loggie.msg("WorldManager: World loaded successfully: %s" % current_world.world_name).domain("WorldMgr").info()
 	return true
 
 ## Load a world by passing a World instance directly
@@ -255,14 +255,14 @@ func load_world_instance(world: WorldBase) -> void:
 	_connect_world_signals()
 	
 	world_loaded.emit(current_world)
-	print_debug("WorldManager: World instance loaded: ", current_world.world_name)
+	Loggie.msg("WorldManager: World instance loaded: %s" % current_world.world_name).domain("WorldMgr").info()
 
 ## Unload the current world
 func unload_current_world() -> void:
 	if not current_world:
 		return
 	
-	print_debug("WorldManager: Unloading world: ", current_world.world_name)
+	Loggie.msg("WorldManager: Unloading world: %s" % current_world.world_name).domain("WorldMgr").info()
 	
 	# Disconnect signals
 	_disconnect_world_signals()
@@ -313,7 +313,7 @@ func get_current_world() -> WorldBase:
 func apply_world_modifiers(difficulty_mult: float, coin_mult: float) -> void:
 	current_difficulty_multiplier = difficulty_mult
 	current_coin_multiplier = coin_mult
-	print_debug("WorldManager: Applied world modifiers - Difficulty: x", difficulty_mult, ", Coins: x", coin_mult)
+	Loggie.msg("WorldManager: Applied world modifiers - Difficulty: x%s, Coins: x%s" % [difficulty_mult, coin_mult]).domain("WorldMgr").debug()
 
 ## Connect to world signals
 func _connect_world_signals() -> void:
@@ -338,18 +338,18 @@ func _disconnect_world_signals() -> void:
 
 ## Handle world started signal
 func _on_world_started() -> void:
-	print_debug("WorldManager: World started: ", current_world.world_name)
+	Loggie.msg("WorldManager: World started: %s" % current_world.world_name).domain("WorldMgr").info()
 	world_started.emit(current_world)
 
 ## Handle world completed signal
 func _on_world_completed() -> void:
-	print_debug("WorldManager: World completed: ", current_world.world_name)
+	Loggie.msg("WorldManager: World completed: %s" % current_world.world_name).domain("WorldMgr").info()
 	world_completed.emit(current_world)
 	# TODO: Award completion bonuses, unlock next world, etc.
 
 ## Handle world failed signal
 func _on_world_failed() -> void:
-	print_debug("WorldManager: World failed: ", current_world.world_name)
+	Loggie.msg("WorldManager: World failed: %s" % current_world.world_name).domain("WorldMgr").warn()
 	world_failed.emit(current_world)
 	# TODO: Handle failure penalties, retry options, etc.
 
@@ -359,17 +359,17 @@ func _on_world_failed() -> void:
 func add_coins(amount: int) -> void:
 	current_coins += amount
 	coins_changed.emit(current_coins)
-	print_debug("Coins added: +", amount, " (Total: ", current_coins, ")")
+	Loggie.msg("Coins added: +%s (Total: %s)" % [amount, current_coins]).domain("WorldMgr").debug()
 
 ## Spend coins if we have enough
 func spend_coins(amount: int) -> bool:
 	if current_coins >= amount:
 		current_coins -= amount
 		coins_changed.emit(current_coins)
-		print_debug("Coins spent: -", amount, " (Total: ", current_coins, ")")
+		Loggie.msg("Coins spent: -%s (Total: %s)" % [amount, current_coins]).domain("WorldMgr").debug()
 		return true
 	else:
-		print_debug("Not enough coins to spend ", amount, " (Have: ", current_coins, ")")
+		Loggie.msg("Not enough coins to spend %s (Have: %s)" % [amount, current_coins]).domain("WorldMgr").debug()
 		return false
 
 ## Get current coin count
@@ -381,15 +381,15 @@ func add_session_upgrade(upgrade_type: String, amount: int) -> void:
 	match upgrade_type:
 		"damage":
 			session_damage_bonus = max(0, session_damage_bonus + amount)  # Prevent negative
-			print_debug("Session damage upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_damage_bonus, ")")
+			Loggie.msg("Session damage upgraded: %s (Total: +%s)" % [(("+"+str(amount)) if amount >= 0 else str(amount)), session_damage_bonus]).domain("WorldMgr").debug()
 		"health":
 			session_health_bonus = max(0, session_health_bonus + amount)  # Prevent negative
-			print_debug("Session health upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_health_bonus, ")")
+			Loggie.msg("Session health upgraded: %s (Total: +%s)" % [(("+"+str(amount)) if amount >= 0 else str(amount)), session_health_bonus]).domain("WorldMgr").debug()
 		"fire_rate":
 			session_fire_rate_bonus = max(0.0, session_fire_rate_bonus + float(amount))  # Prevent negative
-			print_debug("Session fire rate upgraded: ", ("+"+str(amount) if amount >= 0 else str(amount)), " (Total: +", session_fire_rate_bonus, ")")
+			Loggie.msg("Session fire rate upgraded: %s (Total: +%s)" % [(("+"+str(amount)) if amount >= 0 else str(amount)), session_fire_rate_bonus]).domain("WorldMgr").debug()
 		_:
-			print_debug("Unknown upgrade type: ", upgrade_type)
+			Loggie.msg("Unknown upgrade type: %s" % upgrade_type).domain("WorldMgr").warn()
 	# Apply upgrades to all relevant components in the scene
 	_apply_upgrades_to_components()
 
@@ -436,7 +436,7 @@ func reset_session() -> void:
 	session_health_bonus = 0
 	session_fire_rate_bonus = 0.0
 	current_coins = starting_coins
-	print_debug("Session reset - all upgrades cleared")
+	Loggie.msg("Session reset - all upgrades cleared").domain("WorldMgr").info()
 
 	# Reset all components to base values
 	_reset_components_to_base()
@@ -444,12 +444,12 @@ func reset_session() -> void:
 ## Upgrade the coin generation rate
 func upgrade_coins_per_second(increase_amount: float) -> void:
 	coins_per_second += increase_amount
-	print_debug("Coins per second upgraded to: ", coins_per_second)
+	Loggie.msg("Coins per second upgraded to: %s" % coins_per_second).domain("WorldMgr").debug()
 
 ## Upgrade the coin increment multiplier
 func upgrade_coin_multiplier(multiplier_increase: float) -> void:
 	coin_increment_multiplier += multiplier_increase
-	print_debug("Coin multiplier upgraded to: ", coin_increment_multiplier)
+	Loggie.msg("Coin multiplier upgraded to: %s" % coin_increment_multiplier).domain("WorldMgr").debug()
 
 ## Get current coin generation stats
 func get_coin_generation_rate() -> float:
@@ -462,7 +462,7 @@ func register_world(world_node: Node) -> void:
 	if world_node is WorldBase:
 		current_world = world_node as WorldBase
 		_connect_world_signals()
-		print_debug("WorldManager: World registered: ", world_node.name)
+		Loggie.msg("WorldManager: World registered: %s" % world_node.name).domain("WorldMgr").debug()
 		# Emit the world loaded signal
 		world_loaded.emit(current_world)
 	else:

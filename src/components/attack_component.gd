@@ -52,9 +52,7 @@ func _recalculate_stats() -> void:
 	if fire_timer:
 		fire_timer.wait_time = effective_fire_rate
 	
-	print_debug("AttackComponent stats - Fire Rate: ", effective_fire_rate, 
-		", Projectiles: ", effective_projectile_count, 
-		", Range: ", effective_attack_range)
+	Loggie.msg("AttackComponent stats - Fire Rate: %s, Projectiles: %s, Range: %s" % [effective_fire_rate, effective_projectile_count, effective_attack_range]).domain("AttackComp").debug()
 
 func _on_fire_timer_timeout() -> void:
 	# This function is called every time the fire_timer finishes.
@@ -85,7 +83,7 @@ func _find_target() -> Node2D:
 
 func _fire(target: Node2D) -> void:
 	if not projectile_scene:
-		print_debug("AttackComponent: Projectile scene not set!")
+		Loggie.msg("AttackComponent: Projectile scene not set!").domain("AttackComp").warn()
 		return
 
 	var aim_direction = (target.global_position - get_owner().global_position).normalized()

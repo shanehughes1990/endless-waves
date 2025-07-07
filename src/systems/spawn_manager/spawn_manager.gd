@@ -66,7 +66,7 @@ var total_enemies_killed: int = 0
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
-		print_debug("SpawnManager initialized at position: ", global_position)
+		Loggie.msg("SpawnManager initialized at position: %s" % global_position).domain("SpawnMgr").debug()
 		_setup_timers()
 	# Force redraw in editor
 	queue_redraw()
@@ -115,7 +115,7 @@ func _setup_timers() -> void:
 ## Start a new wave
 func start_wave() -> void:
 	if is_wave_active:
-		print_debug("SpawnManager: Wave already active, cannot start new wave")
+		Loggie.msg("SpawnManager: Wave already active, cannot start new wave").domain("SpawnMgr").warn()
 		return
 	
 	current_wave += 1
@@ -124,7 +124,7 @@ func start_wave() -> void:
 	enemies_spawned_this_wave = 0
 	enemies_killed_this_wave = 0
 	
-	print_debug("SpawnManager: Starting wave ", current_wave)
+	Loggie.msg("SpawnManager: Starting wave %s" % current_wave).domain("SpawnMgr").info()
 	
 	# Determine wave type and setup
 	if _is_boss_wave(current_wave):
@@ -150,7 +150,7 @@ func _start_regular_wave() -> void:
 	var enemy_count = base_enemy_count + (tier * enemy_count_increase)
 	var wave_duration = base_wave_duration + (tier * wave_duration_increase)
 	
-	print_debug("SpawnManager: Regular wave ", current_wave, " - Tier ", tier, " - ", enemy_count, " enemies - ", wave_duration, "s duration")
+	Loggie.msg("SpawnManager: Regular wave %s - Tier %s - %s enemies - %ss duration" % [current_wave, tier, enemy_count, wave_duration]).domain("SpawnMgr").info()
 	
 	# Start wave timer with progressive duration
 	wave_timer.wait_time = wave_duration
@@ -165,7 +165,7 @@ func _start_boss_wave() -> void:
 	var total_enemies = boss_enemy_count + boss_minion_count
 	var wave_duration = boss_wave_duration + (tier * boss_duration_increase)
 	
-	print_debug("SpawnManager: Boss wave ", current_wave, " - Tier ", tier, " - ", boss_enemy_count, " boss + ", boss_minion_count, " minions - ", wave_duration, "s duration")
+	Loggie.msg("SpawnManager: Boss wave %s - Tier %s - %s boss + %s minions - %ss duration" % [current_wave, tier, boss_enemy_count, boss_minion_count, wave_duration]).domain("SpawnMgr").info()
 	
 	# Start wave timer with progressive duration
 	wave_timer.wait_time = wave_duration
@@ -213,7 +213,7 @@ func _spawn_enemy() -> void:
 	enemies_spawned_this_wave += 1
 	total_enemies_spawned += 1
 	
-	print_debug("SpawnManager: Spawned enemy at ", spawn_pos)
+	Loggie.msg("SpawnManager: Spawned enemy at %s" % spawn_pos).domain("SpawnMgr").debug()
 
 ## Get random position on spawn circle circumference
 func _get_random_spawn_position() -> Vector2:
@@ -235,7 +235,7 @@ func _get_cluster_spawn_positions(main_pos: Vector2, cluster_count: int) -> Arra
 
 ## Called when wave timer expires
 func _on_wave_timer_timeout() -> void:
-	print_debug("SpawnManager: Wave ", current_wave, " duration expired")
+	Loggie.msg("SpawnManager: Wave %s duration expired" % current_wave).domain("SpawnMgr").info()
 	_end_wave()
 
 ## Called when spawn timer ticks
@@ -252,11 +252,11 @@ func _on_spawn_timer_timeout() -> void:
 		if enemies_to_spawn <= 0:
 			is_spawning = false
 			spawn_timer.stop()
-			print_debug("SpawnManager: Finished spawning all enemies for wave ", current_wave)
+			Loggie.msg("SpawnManager: Finished spawning all enemies for wave %s" % current_wave).domain("SpawnMgr").info()
 
 ## Called when wave delay timer expires
 func _on_delay_timer_timeout() -> void:
-	print_debug("SpawnManager: Wave delay expired, starting next wave")
+	Loggie.msg("SpawnManager: Wave delay expired, starting next wave").domain("SpawnMgr").info()
 	start_wave()
 
 ## End the current wave
@@ -268,11 +268,11 @@ func _end_wave() -> void:
 	is_spawning = false
 	spawn_timer.stop()
 	
-	print_debug("SpawnManager: Wave ", current_wave, " ended")
+	Loggie.msg("SpawnManager: Wave %s ended" % current_wave).domain("SpawnMgr").info()
 	
 	# Start delay for next wave if auto mode enabled
 	if auto_start_waves:
-		print_debug("SpawnManager: Auto-starting next wave in ", wave_delay, " seconds")
+		Loggie.msg("SpawnManager: Auto-starting next wave in %s seconds" % wave_delay).domain("SpawnMgr").info()
 		delay_timer.wait_time = wave_delay
 		delay_timer.start()
 
@@ -285,14 +285,14 @@ func _on_enemy_died(enemy: Enemy) -> void:
 	enemies_killed_this_wave += 1
 	total_enemies_killed += 1
 	
-	print_debug("SpawnManager: Enemy died, ", get_wave_count(), " enemies remaining")
+	Loggie.msg("SpawnManager: Enemy died, %s enemies remaining" % get_wave_count()).domain("SpawnMgr").debug()
 	
 	# Check if wave is complete (all enemies dead and no more spawning)
 	if get_wave_count() == 0 and not is_spawning:
-		print_debug("SpawnManager: All enemies defeated, wave complete!")
+		Loggie.msg("SpawnManager: All enemies defeated, wave complete!").domain("SpawnMgr").info()
 		_end_wave()
 		# Start next wave immediately when all enemies are defeated
-		print_debug("SpawnManager: Starting next wave immediately")
+		Loggie.msg("SpawnManager: Starting next wave immediately").domain("SpawnMgr").info()
 		call_deferred("start_wave")
 
 ## Get wave statistics
@@ -357,9 +357,9 @@ func reset_spawn_system() -> void:
 	if delay_timer:
 		delay_timer.stop()
 	
-	print_debug("SpawnManager: Spawn system reset")
+	Loggie.msg("SpawnManager: Spawn system reset").domain("SpawnMgr").info()
 
 ## Toggle auto start waves
 func toggle_auto_start() -> void:
 	auto_start_waves = not auto_start_waves
-	print_debug("SpawnManager: Auto start waves: ", auto_start_waves)
+	Loggie.msg("SpawnManager: Auto start waves: %s" % auto_start_waves).domain("SpawnMgr").info()
