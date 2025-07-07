@@ -108,6 +108,7 @@ func _draw_debug_menu() -> void:
 		# Get wave statistics
 		var stats = spawn_manager.get_wave_stats()
 		ImGui.Text("Current Wave: " + str(stats.current_wave))
+		ImGui.Text("Current Tier: " + str(stats.current_tier))
 		ImGui.Text("Wave Active: " + str(stats.is_wave_active))
 		ImGui.Text("Is Spawning: " + str(stats.is_spawning))
 		ImGui.Text("Enemies Alive: " + str(stats.enemies_alive))
@@ -117,6 +118,19 @@ func _draw_debug_menu() -> void:
 		ImGui.Text("Total Killed: " + str(stats.total_enemies_killed))
 		ImGui.Text("Boss Wave: " + str(stats.is_boss_wave))
 		ImGui.Text("Auto Start: " + str(stats.auto_start_enabled))
+		
+		# Wave Timer Information
+		ImGui.Separator()
+		ImGui.Text("=== Wave Timer ===")
+		if stats.is_wave_active:
+			ImGui.Text("Wave Duration: " + str("%.1f" % stats.wave_duration) + "s")
+			ImGui.Text("Time Remaining: " + str("%.1f" % stats.time_remaining) + "s")
+			ImGui.Text("Time Elapsed: " + str("%.1f" % stats.time_elapsed) + "s")
+			ImGui.Text("Wave Progress: " + str("%.1f" % (stats.wave_progress * 100.0)) + "%")
+			# Visual progress bar
+			ImGui.ProgressBar(stats.wave_progress, Vector2(200, 0), "")
+		else:
+			ImGui.Text("No Active Wave")
 		
 		# Wave control buttons
 		ImGui.Separator()

@@ -5,3 +5,9 @@
 
 [node name="world" instance=ExtResource("1_eca8k")]
 script = ExtResource("2_world1")
+world_name = "World 1"
+world_id = "workd_1"
+
+[node name="SpawnManager" parent="." index="0"]
+wave_duration_increase = null
+boss_duration_increase = null

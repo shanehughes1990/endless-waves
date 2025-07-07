@@ -28,6 +28,7 @@ class_name SpawnManager
 @export var base_enemy_count: int = 5
 @export var enemy_count_increase: int = 2  # Per milestone tier
 @export var base_wave_duration: float = 30.0
+@export var wave_duration_increase: float = 10.0  # Extra seconds per tier
 @export var spawn_interval: float = 1.0  # Time between individual spawns
 
 # Boss wave configuration
@@ -35,6 +36,7 @@ class_name SpawnManager
 @export var boss_enemy_count: int = 1
 @export var boss_minion_count: int = 3
 @export var boss_wave_duration: float = 60.0
+@export var boss_duration_increase: float = 15.0  # Extra seconds per tier
 
 # Cluster spawning configuration
 @export_group("Cluster Spawning")
@@ -146,11 +148,12 @@ func _is_boss_wave(wave_num: int) -> bool:
 func _start_regular_wave() -> void:
 	var tier = (current_wave - 1) / milestone_interval  # 0, 1, 2, etc.
 	var enemy_count = base_enemy_count + (tier * enemy_count_increase)
+	var wave_duration = base_wave_duration + (tier * wave_duration_increase)
 	
-	print_debug("SpawnManager: Regular wave ", current_wave, " - Tier ", tier, " - ", enemy_count, " enemies")
+	print_debug("SpawnManager: Regular wave ", current_wave, " - Tier ", tier, " - ", enemy_count, " enemies - ", wave_duration, "s duration")
 	
-	# Start wave timer
-	wave_timer.wait_time = base_wave_duration
+	# Start wave timer with progressive duration
+	wave_timer.wait_time = wave_duration
 	wave_timer.start()
 	
 	# Start spawning enemies
@@ -158,12 +161,14 @@ func _start_regular_wave() -> void:
 
 ## Start a boss wave
 func _start_boss_wave() -> void:
+	var tier = (current_wave - 1) / milestone_interval  # Boss wave tier
 	var total_enemies = boss_enemy_count + boss_minion_count
+	var wave_duration = boss_wave_duration + (tier * boss_duration_increase)
 	
-	print_debug("SpawnManager: Boss wave ", current_wave, " - ", boss_enemy_count, " boss + ", boss_minion_count, " minions")
+	print_debug("SpawnManager: Boss wave ", current_wave, " - Tier ", tier, " - ", boss_enemy_count, " boss + ", boss_minion_count, " minions - ", wave_duration, "s duration")
 	
-	# Start wave timer
-	wave_timer.wait_time = boss_wave_duration
+	# Start wave timer with progressive duration
+	wave_timer.wait_time = wave_duration
 	wave_timer.start()
 	
 	# Start spawning enemies
@@ -286,11 +291,33 @@ func _on_enemy_died(enemy: Enemy) -> void:
 	if get_wave_count() == 0 and not is_spawning:
 		print_debug("SpawnManager: All enemies defeated, wave complete!")
 		_end_wave()
+		# Start next wave immediately when all enemies are defeated
+		print_debug("SpawnManager: Starting next wave immediately")
+		call_deferred("start_wave")
 
 ## Get wave statistics
 func get_wave_stats() -> Dictionary:
+	var tier = 0
+	var current_wave_duration = 0.0
+	var time_remaining = 0.0
+	var time_elapsed = 0.0
+	
+	# Calculate tier and duration info
+	if current_wave > 0:
+		tier = (current_wave - 1) / milestone_interval
+		if _is_boss_wave(current_wave):
+			current_wave_duration = boss_wave_duration + (tier * boss_duration_increase)
+		else:
+			current_wave_duration = base_wave_duration + (tier * wave_duration_increase)
+	
+	# Get timer information
+	if wave_timer and is_wave_active:
+		time_remaining = wave_timer.time_left
+		time_elapsed = current_wave_duration - time_remaining
+	
 	return {
 		"current_wave": current_wave,
+		"current_tier": tier,
 		"is_wave_active": is_wave_active,
 		"is_spawning": is_spawning,
 		"enemies_alive": get_wave_count(),
@@ -299,7 +326,11 @@ func get_wave_stats() -> Dictionary:
 		"total_enemies_spawned": total_enemies_spawned,
 		"total_enemies_killed": total_enemies_killed,
 		"is_boss_wave": _is_boss_wave(current_wave),
-		"auto_start_enabled": auto_start_waves
+		"auto_start_enabled": auto_start_waves,
+		"wave_duration": current_wave_duration,
+		"time_remaining": time_remaining,
+		"time_elapsed": time_elapsed,
+		"wave_progress": (time_elapsed / current_wave_duration) if current_wave_duration > 0 else 0.0
 	}
 
 ## Reset spawn system
