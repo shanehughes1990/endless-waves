@@ -11,6 +11,13 @@ func _ready() -> void:
 	# Add to bases group so enemies can find this base
 	add_to_group("bases")
 	
+	# Configure attack component with projectile
+	if attack_component:
+		attack_component.projectile_scene = preload("res://src/actors/projectile.tscn")
+		attack_component.base_fire_rate = 0.5  # Fire twice per second
+		attack_component.attack_range = 400.0  # Good range to defend
+		attack_component.projectile_count = 1
+	
 	# Connect to health component signals
 	if health_component:
 		health_component.died.connect(_on_health_component_died)

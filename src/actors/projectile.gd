@@ -14,8 +14,9 @@ extends Area2D
 var direction: Vector2 = Vector2.RIGHT
 
 func _ready() -> void:
-	# Connect the body_entered signal to handle collisions.
+	# Connect collision signals for both bodies and areas
 	body_entered.connect(_on_body_entered)
+	area_entered.connect(_on_area_entered)
 	
 	# Set a timer to destroy the projectile after its lifetime expires.
 	var timer = get_tree().create_timer(lifetime)
@@ -32,11 +33,22 @@ func set_direction(new_direction: Vector2) -> void:
 	rotation = direction.angle()
 
 func _on_body_entered(body: Node) -> void:
-	# Check if the body has a health component.
-	if body.has_node("HealthComponent"):
-		var health_component = body.get_node("HealthComponent")
+	# Handle collision with CharacterBody2D or RigidBody2D enemies
+	_damage_target(body)
+
+func _on_area_entered(area: Area2D) -> void:
+	# Handle collision with Area2D-based enemies
+	var target = area.get_parent()  # Get the enemy node
+	if target and target.is_in_group("enemies"):
+		_damage_target(target)
+
+func _damage_target(target: Node) -> void:
+	# Check if the target has a health component
+	if target.has_node("HealthComponent"):
+		var health_component = target.get_node("HealthComponent")
 		if health_component.has_method("take_damage"):
 			health_component.take_damage(damage)
+			print_debug("Projectile hit ", target.name, " for ", damage, " damage")
 	
-	# Destroy the projectile on impact.
+	# Destroy the projectile on impact
 	queue_free()
