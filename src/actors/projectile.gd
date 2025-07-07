@@ -2,8 +2,8 @@ extends Area2D
 
 ## A projectile that moves in a straight line and damages targets.
 
-# The damage the projectile inflicts on a target.
-@export var damage: int = 10
+# The damage the projectile inflicts on a target (set dynamically by firing component).
+var damage: int = 10
 
 # The speed of the projectile in pixels per second.
 @export var speed: float = 600.0
@@ -25,6 +25,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	# Move the projectile in its direction.
 	global_position += direction * speed * delta
+
+# This method is called by the AttackComponent to set the projectile's damage amount.
+func set_damage(damage_amount: int) -> void:
+	damage = max(1, damage_amount)  # Ensure minimum 1 damage
+	Loggie.msg("Projectile damage set to %s" % damage).domain("Projectile").info()
 
 # This method is called by the AttackComponent to set the projectile's initial direction.
 func set_direction(new_direction: Vector2) -> void:
@@ -48,7 +53,28 @@ func _damage_target(target: Node) -> void:
 		var health_component = target.get_node("HealthComponent")
 		if health_component.has_method("take_damage"):
 			health_component.take_damage(damage)
-			print_debug("Projectile hit ", target.name, " for ", damage, " damage")
+			Loggie.msg("Projectile hit %s for %s damage" % [target.name, damage]).domain("Projectile").info()
+			
+			# Create floating damage number
+			_show_damage_number(target, damage)
 	
 	# Destroy the projectile on impact
 	queue_free()
+
+# Show floating damage number at target location
+func _show_damage_number(target: Node, damage_amount: int) -> void:
+	# Create a floating label to show damage
+	var damage_label = Label.new()
+	damage_label.text = str(damage_amount)
+	damage_label.add_theme_color_override("font_color", Color.YELLOW)
+	damage_label.add_theme_font_size_override("font_size", 20)
+	
+	# Add to the scene at target position
+	get_tree().root.add_child(damage_label)
+	damage_label.global_position = target.global_position
+	
+	# Animate the floating effect
+	var tween = get_tree().create_tween()
+	tween.parallel().tween_property(damage_label, "global_position", damage_label.global_position + Vector2(0, -50), 1.0)
+	tween.parallel().tween_property(damage_label, "modulate", Color.TRANSPARENT, 1.0)
+	tween.tween_callback(damage_label.queue_free)

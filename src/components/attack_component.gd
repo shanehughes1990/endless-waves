@@ -18,6 +18,9 @@ signal fired(projectile)
 # The number of projectiles to fire at once.
 @export var projectile_count: int = 1
 
+# Base damage for projectiles (if no DamageComponent is found)
+@export var base_projectile_damage: int = 10
+
 # Internal upgrade bonuses
 var fire_rate_bonus: float = 0.0
 var projectile_count_bonus: int = 0
@@ -52,7 +55,7 @@ func _recalculate_stats() -> void:
 	if fire_timer:
 		fire_timer.wait_time = effective_fire_rate
 	
-	Loggie.msg("AttackComponent stats - Fire Rate: %s, Projectiles: %s, Range: %s" % [effective_fire_rate, effective_projectile_count, effective_attack_range]).domain("AttackComp").debug()
+	Loggie.msg("AttackComponent stats - Fire Rate: %s, Projectiles: %s, Range: %s" % [effective_fire_rate, effective_projectile_count, effective_attack_range]).domain("AttackComp").info()
 
 func _on_fire_timer_timeout() -> void:
 	# This function is called every time the fire_timer finishes.
@@ -86,6 +89,15 @@ func _fire(target: Node2D) -> void:
 		Loggie.msg("AttackComponent: Projectile scene not set!").domain("AttackComp").warn()
 		return
 
+	# Get damage from DamageComponent if available, otherwise use base damage
+	var projectile_damage = base_projectile_damage
+	var damage_component = get_owner().get_node_or_null("DamageComponent")
+	if damage_component and damage_component.has_method("get_damage"):
+		projectile_damage = damage_component.get_damage()
+		Loggie.msg("AttackComponent: Using damage from DamageComponent: %s" % projectile_damage).domain("AttackComp").info()
+	else:
+		Loggie.msg("AttackComponent: No DamageComponent found, using base damage: %s" % projectile_damage).domain("AttackComp").info()
+
 	var aim_direction = (target.global_position - get_owner().global_position).normalized()
 
 	for i in range(effective_projectile_count):
@@ -97,8 +109,11 @@ func _fire(target: Node2D) -> void:
 		# Position the projectile at the owner's location.
 		projectile.global_position = get_owner().global_position
 		
+		# Set the projectile's damage first
+		if projectile.has_method("set_damage"):
+			projectile.set_damage(projectile_damage)
+		
 		# Set the projectile's direction.
-		# This assumes the projectile has a method called 'set_direction'.
 		if projectile.has_method("set_direction"):
 			projectile.set_direction(aim_direction)
 		

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://govqgtwddh72"]
+[gd_scene load_steps=7 format=3 uid="uid://govqgtwddh72"]
 
 [ext_resource type="Texture2D" uid="uid://ci23iywsh8nhy" path="res://icon.svg" id="1_7bhu4"]
 [ext_resource type="Script" uid="uid://bkkr6u4jmdhk3" path="res://src/actors/base.gd" id="2"]
 [ext_resource type="PackedScene" path="res://src/components/health_component.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://src/components/attack_component.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://src/components/damage_component.tscn" id="5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uey6x"]
 size = Vector2(128, 128)
@@ -17,6 +18,8 @@ texture = ExtResource("1_7bhu4")
 [node name="HealthComponent" parent="." instance=ExtResource("3")]
 
 [node name="AttackComponent" parent="." instance=ExtResource("4")]
+
+[node name="DamageComponent" parent="." instance=ExtResource("5")]
 
 [node name="CollisionArea" type="Area2D" parent="."]
 collision_mask = 2

@@ -26,9 +26,9 @@ var current_world: WorldBase = null
 @export var coin_increment_multiplier: float = 1.0
 
 # Session upgrade bonuses (reset each session)
-var session_damage_bonus: int = 0
 var session_health_bonus: int = 0
 var session_fire_rate_bonus: float = 0.0
+var session_damage_bonus: int = 0  # Damage bonus for DamageComponents
 
 # World modifiers (applied by current world)
 var current_difficulty_multiplier: float = 1.0
@@ -84,6 +84,28 @@ func _draw_debug_menu() -> void:
 		ImGui.Text("Enemy Increase: " + str(config.enemy_count_increase))
 	else:
 		ImGui.Text("Current World: None")
+	ImGui.Separator()
+	ImGui.Text("=== Component Status ===")
+	# Show component counts and their current values
+	var health_components = get_tree().get_nodes_in_group("health_components")
+	var attack_components = get_tree().get_nodes_in_group("attack_components") 
+	var damage_components = get_tree().get_nodes_in_group("damage_components")
+	
+	ImGui.Text("Health Components: " + str(health_components.size()))
+	for component in health_components:
+		if component.has_method("get_max_health") and component.has_method("get_health_bonus"):
+			ImGui.Text("  - Max Health: " + str(component.get_max_health()) + " (Bonus: +" + str(component.get_health_bonus()) + ")")
+	
+	ImGui.Text("Attack Components: " + str(attack_components.size()))
+	for component in attack_components:
+		if component.has_method("get_effective_fire_rate"):
+			ImGui.Text("  - Fire Rate: " + str("%.2f" % component.get_effective_fire_rate()) + "s")
+	
+	ImGui.Text("Damage Components: " + str(damage_components.size()))
+	for component in damage_components:
+		if component.has_method("get_damage") and component.has_method("get_damage_bonus"):
+			ImGui.Text("  - Damage: " + str(component.get_damage()) + " (Bonus: +" + str(component.get_damage_bonus()) + ")")
+
 	ImGui.Separator()
 	
 	ImGui.Text("=== Stats ===")
@@ -407,6 +429,12 @@ func _apply_upgrades_to_components() -> void:
 		if component.has_method("apply_fire_rate_bonus"):
 			component.apply_fire_rate_bonus(session_fire_rate_bonus)
 		# Note: damage bonus would be applied to a DamageComponent if it existed
+	
+	# Find all DamageComponents and apply damage bonus
+	var damage_components = get_tree().get_nodes_in_group("damage_components")
+	for component in damage_components:
+		if component.has_method("apply_damage_bonus"):
+			component.apply_damage_bonus(session_damage_bonus)
 
 ## Reset all components to their base values (no bonuses)
 func _reset_components_to_base() -> void:
@@ -421,6 +449,12 @@ func _reset_components_to_base() -> void:
 	for component in attack_components:
 		if component.has_method("reset_bonuses"):
 			component.reset_bonuses()
+	
+	# Reset all DamageComponents
+	var damage_components = get_tree().get_nodes_in_group("damage_components")
+	for component in damage_components:
+		if component.has_method("reset_bonuses"):
+			component.reset_bonuses()
 
 ## Apply current session upgrades to a specific component (called when component joins scene)
 func apply_upgrades_to_component(component: Node) -> void:
@@ -429,6 +463,9 @@ func apply_upgrades_to_component(component: Node) -> void:
 
 	if component.is_in_group("attack_components") and component.has_method("apply_fire_rate_bonus"):
 		component.apply_fire_rate_bonus(session_fire_rate_bonus)
+	
+	if component.is_in_group("damage_components") and component.has_method("apply_damage_bonus"):
+		component.apply_damage_bonus(session_damage_bonus)
 
 ## Reset session upgrades (called when returning to menu or starting new session)
 func reset_session() -> void:
