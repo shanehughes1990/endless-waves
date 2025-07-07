@@ -139,17 +139,35 @@ func _setup_movement() -> void:
 
 ## Setup ground enemy movement (path to base)
 func _setup_ground_movement() -> void:
-	# Move directly to screen center (where base is located)
-	var screen_center = Vector2(960, 540)  # Based on project settings
-	if movement_component:
-		movement_component.move_to_target(screen_center)
+	# Find the base in the scene and move to it
+	var base_node = get_tree().get_first_node_in_group("bases")
+	if base_node:
+		var base_position = base_node.global_position
+		if movement_component:
+			movement_component.move_to_target(base_position)
+			print_debug("Enemy moving to base at: ", base_position)
+	else:
+		# Fallback to screen center if no base found
+		var screen_center = Vector2(960, 540)
+		if movement_component:
+			movement_component.move_to_target(screen_center)
+			print_debug("Enemy moving to fallback position: ", screen_center)
 
 ## Setup air enemy movement (direct line to base)
 func _setup_air_movement() -> void:
-	# Air enemies fly directly to base (same as ground for now)
-	var screen_center = Vector2(960, 540)
-	if movement_component:
-		movement_component.move_to_target(screen_center)
+	# Find the base in the scene and move to it
+	var base_node = get_tree().get_first_node_in_group("bases")
+	if base_node:
+		var base_position = base_node.global_position
+		if movement_component:
+			movement_component.move_to_target(base_position)
+			print_debug("Air enemy moving to base at: ", base_position)
+	else:
+		# Fallback to screen center if no base found
+		var screen_center = Vector2(960, 540)
+		if movement_component:
+			movement_component.move_to_target(screen_center)
+			print_debug("Air enemy moving to fallback position: ", screen_center)
 
 ## Called when health component reports death
 func _on_health_component_died() -> void:

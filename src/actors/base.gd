@@ -8,6 +8,9 @@ class_name Base
 @onready var attack_component: AttackComponent = $AttackComponent
 
 func _ready() -> void:
+	# Add to bases group so enemies can find this base
+	add_to_group("bases")
+	
 	# Connect to health component signals
 	if health_component:
 		health_component.died.connect(_on_health_component_died)

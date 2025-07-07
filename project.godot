@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Endless Waves"
-run/main_scene="res://src/world/world_1/world_1.tscn"
+run/main_scene="uid://34egta30857h"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 

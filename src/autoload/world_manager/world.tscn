@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://bn1dcnat4bthj"]
+
+[ext_resource type="Script" uid="uid://dlqxj8qb0s7dh" path="res://src/autoload/world_manager/world.gd" id="1_gjuf1"]
+[ext_resource type="Script" uid="uid://cskxxwedgdxkd" path="res://src/systems/spawn_manager/spawn_manager.gd" id="2_t644p"]
+[ext_resource type="PackedScene" uid="uid://govqgtwddh72" path="res://src/actors/base.tscn" id="3_gjuf1"]
+
+[node name="world" type="Node2D"]
+script = ExtResource("1_gjuf1")
+metadata/_custom_type_script = "uid://dlqxj8qb0s7dh"
+
+[node name="SpawnManager" type="Node2D" parent="."]
+position = Vector2(928, 448)
+script = ExtResource("2_t644p")
+metadata/_custom_type_script = "uid://cskxxwedgdxkd"
+
+[node name="Base" parent="." instance=ExtResource("3_gjuf1")]
+position = Vector2(928, 448)

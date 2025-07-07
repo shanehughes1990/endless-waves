@@ -21,6 +21,17 @@ signal world_failed()
 @export var world_description: String = "A mysterious world"
 @export var world_theme_color: Color = Color.WHITE
 
+# Spawn Manager Configuration (editable in Godot editor per world)
+@export_group("Spawn Configuration")
+@export var spawn_radius: float = 300.0
+@export var auto_start_waves: bool = false
+@export var wave_delay: float = 5.0
+@export var base_enemy_count: int = 5
+@export var enemy_count_increase: int = 2
+@export var base_wave_duration: float = 30.0
+@export var spawn_interval: float = 1.0
+@export var debug_enemy_scene: PackedScene = preload("res://src/actors/enemies/debug_enemy.tscn")
+
 # World state
 var is_initialized: bool = false
 var is_active: bool = false
@@ -45,6 +56,10 @@ func initialize() -> void:
 	
 	# Perform base initialization
 	_setup_world()
+	
+	# Register this world with the WorldManager
+	if WorldManager:
+		WorldManager.register_world(self)
 	
 	# Call child-specific initialization
 	_on_world_initialize()
@@ -120,12 +135,10 @@ func get_world_config() -> Dictionary:
 		"theme_color": world_theme_color,
 		"difficulty_multiplier": difficulty_multiplier,
 		"coin_multiplier": coin_multiplier,
-		"background_scene": get_background_scene(),
-		"music_track": get_music_track(),
-		"ambient_sounds": get_ambient_sounds(),
-		"visual_theme": get_visual_theme(),
-		"base_stats": get_base_stats(),
-		"world_resources": get_world_resources()
+		"spawn_radius": spawn_radius,
+		"auto_start_waves": auto_start_waves,
+		"base_enemy_count": base_enemy_count,
+		"enemy_count_increase": enemy_count_increase
 	}
 
 # Virtual methods for child classes to override
@@ -158,78 +171,6 @@ func get_spawn_manager() -> SpawnManager:
 func _configure_spawn_manager() -> void:
 	pass
 
-## Override in child classes to define spawn radius
-func get_spawn_radius() -> float:
-	return 300.0  # Default radius
-
-## Override in child classes to define enemy scenes
-func get_enemy_scenes() -> Array[PackedScene]:
-	return [preload("res://src/actors/enemies/debug_enemy.tscn")]  # Default enemy
-
-## Override in child classes to define wave configuration
-func get_wave_configuration() -> Dictionary:
-	return {
-		"auto_start_waves": false,
-		"wave_delay": 5.0,
-		"base_enemy_count": 5,
-		"enemy_count_increase": 2,
-		"base_wave_duration": 30.0,
-		"spawn_interval": 1.0
-	}
-
-## Override in child classes to define background scene
-func get_background_scene() -> PackedScene:
-	return null  # No background by default
-
-## Override in child classes to define music track
-func get_music_track() -> AudioStream:
-	return null  # No music by default
-
-## Override in child classes to define ambient sounds
-func get_ambient_sounds() -> Array[AudioStream]:
-	return []  # No ambient sounds by default
-
-## Override in child classes to define visual theme
-func get_visual_theme() -> Dictionary:
-	return {
-		"primary_color": world_theme_color,
-		"secondary_color": Color.GRAY,
-		"accent_color": Color.YELLOW,
-		"fog_color": Color.TRANSPARENT,
-		"lighting_intensity": 1.0,
-		"contrast": 1.0,
-		"saturation": 1.0
-	}
-
-## Override in child classes to define base stats for entities in this world
-func get_base_stats() -> Dictionary:
-	return {
-		"base_health": 100,
-		"base_damage": 10,
-		"base_fire_rate": 1.0,
-		"base_movement_speed": 50.0,
-		"base_armor": 0,
-		"base_magic_resistance": 0
-	}
-
-## Override in child classes to define enemy scenes by type
-func get_enemy_scenes_by_type() -> Dictionary:
-	return {
-		"basic": [preload("res://src/actors/enemies/debug_enemy.tscn")],
-		"elite": [],
-		"boss": []
-	}
-
-## Override in child classes to define world-specific resources
-func get_world_resources() -> Dictionary:
-	return {
-		"backgrounds": [],
-		"props": [],
-		"effects": [],
-		"textures": [],
-		"materials": []
-	}
-
 # Private methods
 
 ## Base world setup - called during initialization
@@ -246,44 +187,32 @@ func _setup_world() -> void:
 
 ## Initialize the spawn manager for this world
 func _initialize_spawn_manager() -> void:
-	if not SPAWN_MANAGER_SCENE:
-		push_error("World: No spawn manager scene configured")
-		return
-	
-	spawn_manager = SPAWN_MANAGER_SCENE.instantiate()
+	# Get the SpawnManager node from the scene
+	spawn_manager = get_node("SpawnManager") as SpawnManager
 	if not spawn_manager:
-		push_error("World: Failed to instantiate spawn manager")
+		push_error("World: No SpawnManager node found in scene")
 		return
 	
-	# Position spawn manager at world center by default
-	var world_bounds = get_world_bounds()
-	spawn_manager.global_position = world_bounds.position + world_bounds.size / 2
+	# Configure spawn manager with exported properties
+	spawn_manager.spawn_radius = spawn_radius
+	spawn_manager.auto_start_waves = auto_start_waves
+	spawn_manager.wave_delay = wave_delay
+	spawn_manager.base_enemy_count = base_enemy_count
+	spawn_manager.enemy_count_increase = enemy_count_increase
+	spawn_manager.base_wave_duration = base_wave_duration
+	spawn_manager.spawn_interval = spawn_interval
 	
-	# Configure spawn manager with world-specific settings
-	spawn_manager.spawn_radius = get_spawn_radius()
-	
-	# Apply wave configuration
-	var wave_config = get_wave_configuration()
-	spawn_manager.auto_start_waves = wave_config.get("auto_start_waves", false)
-	spawn_manager.wave_delay = wave_config.get("wave_delay", 5.0)
-	spawn_manager.base_enemy_count = wave_config.get("base_enemy_count", 5)
-	spawn_manager.enemy_count_increase = wave_config.get("enemy_count_increase", 2)
-	spawn_manager.base_wave_duration = wave_config.get("base_wave_duration", 30.0)
-	spawn_manager.spawn_interval = wave_config.get("spawn_interval", 1.0)
-	
-	# Set enemy scenes with enhanced selection
-	_configure_enemy_scenes()
+	# Set enemy scene
+	if debug_enemy_scene:
+		spawn_manager.debug_enemy_scene = debug_enemy_scene
 	
 	# Apply world visual theme
 	_apply_world_theme()
 	
-	# Add to world
-	add_child(spawn_manager)
-	
 	# Call world-specific configuration
 	_configure_spawn_manager()
 	
-	print_debug("World: Spawn manager initialized at ", spawn_manager.global_position)
+	print_debug("World: Spawn manager configured with exported properties")
 
 ## Validate that the world has required components
 func _validate_world_structure() -> void:
@@ -295,37 +224,11 @@ func _validate_world_structure() -> void:
 	if world_name.is_empty():
 		world_name = "World " + world_id
 
-## Configure enemy scenes for the spawn manager
-func _configure_enemy_scenes() -> void:
-	if not spawn_manager:
-		return
-	
-	var enemy_types = get_enemy_scenes_by_type()
-	
-	# Set primary enemy (first basic enemy)
-	var basic_enemies = enemy_types.get("basic", [])
-	if basic_enemies.size() > 0:
-		spawn_manager.debug_enemy_scene = basic_enemies[0]
-	
-	# Store enemy types in spawn manager for future use
-	spawn_manager.set_meta("enemy_types", enemy_types)
-	print_debug("World: Enemy scenes configured - Basic: ", basic_enemies.size(), ", Elite: ", enemy_types.get("elite", []).size(), ", Boss: ", enemy_types.get("boss", []).size())
-
 ## Apply world visual theme
 func _apply_world_theme() -> void:
-	var theme = get_visual_theme()
-	print_debug("World: Applying visual theme - Primary: ", theme.get("primary_color"), ", Lighting: ", theme.get("lighting_intensity"))
-	
-	# Apply background if available
-	var bg_scene = get_background_scene()
-	if bg_scene:
-		var background = bg_scene.instantiate()
-		background.z_index = -100  # Behind everything
-		add_child(background)
-		print_debug("World: Background scene loaded")
+	print_debug("World: Applying visual theme for ", world_name, " with color ", world_theme_color)
 	
 	# TODO: Apply lighting, fog, and other visual effects
 	# This could be expanded to modify CanvasLayer, Environment, etc.
-	
-	# Store theme for other systems to use
-	set_meta("visual_theme", theme)
+	# For now, just store the theme color for other systems to use
+	set_meta("theme_color", world_theme_color)

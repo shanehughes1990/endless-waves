@@ -77,17 +77,11 @@ func _draw_debug_menu() -> void:
 		ImGui.Text("Difficulty: x" + str(config.difficulty_multiplier))
 		ImGui.Text("Coin Rate: x" + str(config.coin_multiplier))
 		
-		# Show theme info
-		var theme = config.visual_theme
-		ImGui.Text("Theme Color: " + str(config.theme_color))
-		ImGui.Text("Lighting: " + str(theme.get("lighting_intensity", 1.0)))
-		ImGui.Text("Saturation: " + str(theme.get("saturation", 1.0)))
-		
-		# Show base stats
-		var stats = config.base_stats
-		ImGui.Text("Base Health: " + str(stats.get("base_health", 100)))
-		ImGui.Text("Base Damage: " + str(stats.get("base_damage", 10)))
-		ImGui.Text("Base Speed: " + str(stats.get("base_movement_speed", 50)))
+		# Show spawn configuration
+		ImGui.Text("Spawn Radius: " + str(config.spawn_radius))
+		ImGui.Text("Auto Start: " + str(config.auto_start_waves))
+		ImGui.Text("Base Enemies: " + str(config.base_enemy_count))
+		ImGui.Text("Enemy Increase: " + str(config.enemy_count_increase))
 	else:
 		ImGui.Text("Current World: None")
 	ImGui.Separator()
@@ -449,12 +443,13 @@ func get_coin_generation_rate() -> float:
 
 # ===== DEPRECATED METHODS (kept for compatibility) =====
 
-## Register the current world scene (DEPRECATED - use load_world instead)
+## Register the current world scene
 func register_world(world_node: Node) -> void:
-	push_warning("WorldManager.register_world() is deprecated. Use load_world() instead.")
 	if world_node is WorldBase:
 		current_world = world_node as WorldBase
 		_connect_world_signals()
-		print_debug("World registered: ", world_node.name)
+		print_debug("WorldManager: World registered: ", world_node.name)
+		# Emit the world loaded signal
+		world_loaded.emit(current_world)
 	else:
 		push_error("WorldManager: Registered node is not a World type")
